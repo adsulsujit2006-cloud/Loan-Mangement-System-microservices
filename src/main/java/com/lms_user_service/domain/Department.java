@@ -1,5 +1,5 @@
 package com.lms_user_service.domain;
 
-public enum ModuleType {
+public class Department {
 
 }
