@@ -6,6 +6,8 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -16,6 +18,8 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
+import com.lms_user_servicess.enums.RoleType;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,9 +40,9 @@ public class Role {
     @Column(name = "role_id")
     private Long id;
 
-//    @Enumerated(EnumType.STRING)
-//    @Column(name = "role_name", nullable = false, unique = true, length = 30)
-//    private RoleType roleName;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role_name", nullable = false, unique = true, length = 30)
+    private RoleType roleName;
 
     @Column(name = "description", length = 255)
     private String description;
@@ -63,4 +67,5 @@ public class Role {
         inverseJoinColumns = @JoinColumn(name = "permission_id")
     )
     private Set<Permission> permissions = new HashSet<>();
+
 }
