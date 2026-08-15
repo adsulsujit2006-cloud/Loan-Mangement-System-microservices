@@ -23,11 +23,11 @@ public class BranchResponse {
 
     private String email;
 
-    private String phone;
+    private String phoneNumber;
 
     private String managerName;
 
-    private String address;
+    private String addressLine1;
 
     private String city;
 
@@ -42,5 +42,4 @@ public class BranchResponse {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
-
 }

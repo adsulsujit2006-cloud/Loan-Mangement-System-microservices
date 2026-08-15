@@ -1,6 +1,5 @@
 package com.lms_user_servicess.mapper;
 
-
 import org.mapstruct.Mapper;
 
 import com.lms_user_servicess.dto.request.CreateBranchRequest;
