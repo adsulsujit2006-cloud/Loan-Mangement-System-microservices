@@ -1,5 +1,7 @@
 package com.lms_user_servicess.impl;
 
+import java.security.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -102,32 +104,92 @@ public class BranchServiceimpl implements BranchService {
 		log.info("get data successfully with branch id {} ",branch);
 		return branchMapper.toResponse(branch);
 	}
+	/*
+	 * This Impleted Method Is Get All Branches Details
+	 */
 
 	@Override
 	public List<BranchResponse> getAllBranches() {
 	    log.info("Get all branch details : ");
+	    /*
+	     * use java 8 reference method callicing concept
+	     */
 	    return branchRepository.findAll()
 	            .stream()
 	            .map(branchMapper::toResponse)
 	            .collect(Collectors.toList());
 	}
-
+/*
+ *  This method implements delete Branch with id
+ */
 	@Override
 	public ApiResponse deleteBranch(Long id) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
+	    Branch branch = branchRepository.findById(id)
+	            .orElseThrow(() -> new ResourceNotFoundException(
+	                    "Bank branch not found for given id: " + id));
+
+	    /*
+	     * Soft Delete only, not delete permanently in DB
+	     */
+	    branch.setActive(false);
+	    branchRepository.save(branch);
+
+	    log.info("Branch soft delete with id {}", id);
+	    /*
+	     * use method chaning concept
+	     */
+	    return ApiResponse.builder()
+	            .status(200)
+	            .message("Branch delete successfully")
+	            .timestamp(LocalDateTime.now())
+	            .build();
+	}
+	/*
+	 * This method implements Acitivate Branch with id
+	 */
 	@Override
-	public ApiResponse deactivateBranch(Long id) {
-		// TODO Auto-generated method stub
-		return null;
+	public ApiResponse activateBranch(Long id) {
+		Branch branch = branchRepository.findById(id)
+	            .orElseThrow(() -> new ResourceNotFoundException(
+	                    "Bank branch not found for given id: " + id));
+		branch.setActive(true);
+		branchRepository.save(branch);
+		log.info("Branch activate with id {}",id);
+		return ApiResponse.builder()
+				.status(200)
+				.message("Branch Activate successfully")
+				.timestamp(LocalDateTime.now())
+				.build();
 	}
 
 	@Override
 	public BranchResponse updateBranch(Long id, UpdateBranchRequest request) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	/*
+	 * This method implements diactivate Branch with id
+	 */
+
+	@Override
+	public ApiResponse deActivateBranch(Long id) {
+		 Branch branch = branchRepository.findById(id)
+		            .orElseThrow(() -> new ResourceNotFoundException(
+		                    "Bank branch not found for given id: " + id));
+
+		    branch.setActive(false);
+		    branchRepository.save(branch);
+
+		    log.info("Deactivate branch with id {}", id);
+		    /*
+		     * use method chaning concept
+		     */
+		    return ApiResponse.builder()
+		            .status(200)
+		            .message("Branch delete successfully")
+		            .timestamp(LocalDateTime.now())
+		            .build();
 	}
 
 }
