@@ -18,6 +18,8 @@ public interface BranchService {
 	
 	public ApiResponse deleteBranch(Long id);
 	
-	public ApiResponse deactivateBranch(Long id);
+	public ApiResponse activateBranch(Long id);
+	
+	public ApiResponse deActivateBranch(Long id);
 
 }
