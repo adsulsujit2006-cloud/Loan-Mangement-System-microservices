@@ -11,11 +11,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lms_user_servicess.dto.request.CreateBranchRequest;
+import com.lms_user_servicess.dto.request.UpdateBranchRequest;
 import com.lms_user_servicess.dto.responce.ApiResponse;
 import com.lms_user_servicess.dto.responce.BranchResponse;
 import com.lms_user_servicess.sservice.BranchService;
@@ -35,8 +37,7 @@ public class BranchController {
 	 * REST API : Register bank branch with required details
 	 */
 	@PostMapping("/register")
-	public ResponseEntity<BranchResponse> createBranch(
-			@Valid @RequestBody CreateBranchRequest request) {
+	public ResponseEntity<BranchResponse> createBranch(@Valid @RequestBody CreateBranchRequest request) {
 
 		log.info("REST Request: Create Branch");
 
@@ -77,21 +78,34 @@ public class BranchController {
 
 		return ResponseEntity.ok(branchService.deleteBranch(id));
 	}
+
 	/*
 	 * REST API : Activate branch by using branch id
 	 */
 	@PatchMapping("/{id}/activat")
-	public ResponseEntity<ApiResponse> activateBranch(@PathVariable Long id){
-		log.info("REST Request : Activate branch {}",id);
+	public ResponseEntity<ApiResponse> activateBranch(@PathVariable Long id) {
+		log.info("REST Request : Activate branch {}", id);
 		return ResponseEntity.ok(branchService.activateBranch(id));
 	}
+
 	/*
 	 * REST API : Deactivate branch by using branch id
 	 */
 	@PatchMapping("/{id}/deactivat")
-	public ResponseEntity<ApiResponse> deactivateBranch(@PathVariable Long id){
-		log.info("REST Request : deActivate branch {}",id);
+	public ResponseEntity<ApiResponse> deactivateBranch(@PathVariable Long id) {
+		log.info("REST Request : deActivate branch {}", id);
 		return ResponseEntity.ok(branchService.activateBranch(id));
+	}
+/*
+ * REST API : Update branch details using branch id
+ */
+	@PutMapping("/{id}")
+	public ResponseEntity<BranchResponse> updateBranch(@PathVariable Long id,
+			@Valid @RequestBody UpdateBranchRequest request) {
+
+		log.info("REST Request : Update Branch {}", id);
+
+		return ResponseEntity.ok(branchService.updateBranch(id, request));
 	}
 
 }
