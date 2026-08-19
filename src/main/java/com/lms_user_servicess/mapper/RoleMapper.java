@@ -8,7 +8,8 @@ import com.lms_user_servicess.modal.Role;
 
 @Mapper(componentModel = "spring")
 public interface RoleMapper {
-	RoleResponse toResponse(Role role);
-	Role toEntity(CreateRoleRequest request);
 
+	RoleResponse toResponse(Role role);
+
+	Role toEntity(CreateRoleRequest request);
 }

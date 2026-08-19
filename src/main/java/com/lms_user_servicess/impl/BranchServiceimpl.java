@@ -11,6 +11,7 @@ import com.lms_user_servicess.dto.request.CreateBranchRequest;
 import com.lms_user_servicess.dto.request.UpdateBranchRequest;
 import com.lms_user_servicess.dto.responce.ApiResponse;
 import com.lms_user_servicess.dto.responce.BranchResponse;
+import com.lms_user_servicess.exception.BadRequestException;
 import com.lms_user_servicess.exception.DuplicateResourceException;
 import com.lms_user_servicess.exception.ResourceNotFoundException;
 import com.lms_user_servicess.mapper.BranchMapper;
@@ -26,133 +27,199 @@ public class BranchServiceimpl implements BranchService {
 
 	@Autowired
 	private BranchRepository branchRepository;
+
 	@Autowired
 	private BranchMapper branchMapper;
 
 	@Override
 	public BranchResponse createBranch(CreateBranchRequest request) {
 
-		log.info("Creating new Branch with branch code {}", request.getBranchCode());
 		/*
-		 * to check branch code alreday exit or not
+		 * Check request is null or not
+		 */
+		if (request == null) {
+			throw new BadRequestException("Branch request cannot be null");
+		}
+
+		log.info("Creating new Branch with branch code {}", request.getBranchCode());
+
+		/*
+		 * Check branch code already exists or not
 		 */
 		if (branchRepository.existsByBranchCode(request.getBranchCode())) {
 			throw new DuplicateResourceException("Branch code already exists");
 		}
 
 		log.info("Creating new Branch with branch name {}", request.getBranchName());
-		/*
-		 * to check branch name alreday exit or not
-		 */
 
+		/*
+		 * Check branch name already exists or not
+		 */
 		if (branchRepository.existsByBranchName(request.getBranchName())) {
-			throw new DuplicateResourceException("Branch name is already exists");
+			throw new DuplicateResourceException("Branch name already exists");
 		}
 
 		log.info("Creating new Branch with branch ifscCode {}", request.getIfscCode());
-		/*
-		 * to check ifsc code alreday exit or not
-		 */
 
+		/*
+		 * Check IFSC code already exists or not
+		 */
 		if (branchRepository.existsByIfscCode(request.getIfscCode())) {
-			throw new DuplicateResourceException("IFSC code is already exists");
+			throw new DuplicateResourceException("IFSC code already exists");
 		}
 
 		log.info("Creating new Branch with branch email {}", request.getEmail());
-		/*
-		 * to check email ic exit or not
-		 */
 
+		/*
+		 * Check email already exists or not
+		 */
 		if (branchRepository.existsByEmail(request.getEmail())) {
-			throw new DuplicateResourceException("Branch email is already exists");
+			throw new DuplicateResourceException("Branch email already exists");
 		}
+
 		log.info("Creating new Branch with branch phoneNumber {}", request.getPhoneNumber());
-		/*
-		 * to check phone number is exit or not
-		 */
 
+		/*
+		 * Check phone number already exists or not
+		 */
 		if (branchRepository.existsByPhoneNumber(request.getPhoneNumber())) {
-			throw new DuplicateResourceException("Branch mobile number is already exists");
+			throw new DuplicateResourceException("Branch mobile number already exists");
 		}
 
-		// Map request to Entity
+		/*
+		 * Map request to Entity
+		 */
 		Branch branch = branchMapper.toEntity(request);
 
 		/*
-		 * set branch bydefault active true
+		 * Set branch by default active true
 		 */
 		branch.setActive(true);
 
-		// Data Save in dataBase
+		/*
+		 * Save data in database
+		 */
 		Branch newBranch = branchRepository.save(branch);
 
-		// add log for create branch successful
-		log.info("Branch created successfully with branch code: {}");
+		/*
+		 * Add log for create branch successful
+		 */
+		log.info("Branch created successfully with branch code {}", newBranch.getBranchCode());
+
 		return branchMapper.toResponse(newBranch);
 	}
 
 	/*
-	 * This impleted method is get BrachDetails by id
+	 * This implemented method is update Branch details
 	 */
 	@Override
 	public BranchResponse updateBranch(Long id, UpdateBranchRequest request) {
+
 		log.info("Update branch details with branch id {}", id);
+
+		if (id == null) {
+			throw new BadRequestException("Branch id cannot be null");
+		}
+
+		if (request == null) {
+			throw new BadRequestException("Branch request cannot be null");
+		}
+
 		/*
-		 * find branch exit or not
+		 * Find branch exists or not
 		 */
 		Branch branch = branchRepository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("Branch not found given id" + id));
+				.orElseThrow(() -> new ResourceNotFoundException(
+						"Branch not found for given id: " + id));
 
 		/*
-		 * check ifsc code duplicate or not and null
+		 * Check IFSC code duplicate or not
 		 */
-		if (branch.getIfscCode() != null && branchRepository.existsByIfscCode(request.getIfscCode())) {
-			throw new DuplicateResourceException("ifsc code alreday exit enter unique ifsc code");
+		if (request.getIfscCode() != null
+				&& !request.getIfscCode().equals(branch.getIfscCode())
+				&& branchRepository.existsByIfscCode(request.getIfscCode())) {
+
+			throw new DuplicateResourceException(
+					"IFSC code already exists, enter unique IFSC code");
 		}
+
 		/*
-		 * check email duplicate or not and null
+		 * Check email duplicate or not
 		 */
-		if (branch.getEmail() != null && branchRepository.existsByEmail(request.getEmail())) {
-			throw new DuplicateResourceException("Email alreday exit enter unique Email");
+		if (request.getEmail() != null
+				&& !request.getEmail().equals(branch.getEmail())
+				&& branchRepository.existsByEmail(request.getEmail())) {
+
+			throw new DuplicateResourceException(
+					"Email already exists, enter unique email");
 		}
+
 		/*
-		 * check phone number duplicate or not and null
+		 * Check phone number duplicate or not
 		 */
-		if (branch.getPhoneNumber() != null && branchRepository.existsByPhoneNumber(request.getPhoneNumber())) {
-			throw new DuplicateResourceException("Phone number is slreday exit enter new phone number");
+		if (request.getPhoneNumber() != null
+				&& !request.getPhoneNumber().equals(branch.getPhoneNumber())
+				&& branchRepository.existsByPhoneNumber(request.getPhoneNumber())) {
+
+			throw new DuplicateResourceException(
+					"Phone number already exists, enter new phone number");
 		}
+
 		/*
-		 * Set updated value
+		 * Set updated values
 		 */
-		branch.setIfscCode(request.getIfscCode());
-		branch.setEmail(request.getEmail());
-		branch.setPhoneNumber(request.getPhoneNumber());
+		if (request.getIfscCode() != null) {
+			branch.setIfscCode(request.getIfscCode());
+		}
+
+		if (request.getEmail() != null) {
+			branch.setEmail(request.getEmail());
+		}
+
+		if (request.getPhoneNumber() != null) {
+			branch.setPhoneNumber(request.getPhoneNumber());
+		}
 
 		Branch updatedBranch = branchRepository.save(branch);
-		log.info("Branch updated successfully {}");
+
+		log.info("Branch updated successfully with id {}", id);
+
 		return branchMapper.toResponse(updatedBranch);
 	}
 
 	@Override
 	public BranchResponse getBranchById(Long id) {
-		log.info("get Branch by id {}", id);
+
+		log.info("Get Branch by id {}", id);
+
+		if (id == null) {
+			throw new BadRequestException("Branch id cannot be null");
+		}
 
 		Branch branch = branchRepository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("Bank branch not found for given id: " + id));
-		log.info("get data successfully with branch id {} ", branch);
+				.orElseThrow(() -> new ResourceNotFoundException(
+						"Bank branch not found for given id: " + id));
+
+		log.info("Get branch data successfully with branch id {}", id);
+
 		return branchMapper.toResponse(branch);
 	}
-	/*
-	 * This Impleted Method Is Get All Branches Details
-	 */
 
+	/*
+	 * This implemented method is get all Branches details
+	 */
 	@Override
 	public List<BranchResponse> getAllBranches() {
-		log.info("Get all branch details : ");
+
+		log.info("Get all branch details");
+
 		/*
-		 * use java 8 reference method callicing concept
+		 * Java 8 method reference
 		 */
-		return branchRepository.findAll().stream().map(branchMapper::toResponse).collect(Collectors.toList());
+		return branchRepository.findAll()
+				.stream()
+				.map(branchMapper::toResponse)
+				.collect(Collectors.toList());
 	}
 
 	/*
@@ -161,55 +228,87 @@ public class BranchServiceimpl implements BranchService {
 	@Override
 	public ApiResponse deleteBranch(Long id) {
 
+		if (id == null) {
+			throw new BadRequestException("Branch id cannot be null");
+		}
+
 		Branch branch = branchRepository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("Bank branch not found for given id: " + id));
+				.orElseThrow(() -> new ResourceNotFoundException(
+						"Bank branch not found for given id: " + id));
 
 		/*
-		 * Soft Delete only, not delete permanently in DB
+		 * Soft delete only, not delete permanently from DB
 		 */
 		branch.setActive(false);
+
 		branchRepository.save(branch);
 
-		log.info("Branch soft delete with id {}", id);
+		log.info("Branch soft deleted with id {}", id);
+
 		/*
-		 * use method chaning concept
+		 * Method chaining
 		 */
-		return ApiResponse.builder().status(200).message("Branch delete successfully").timestamp(LocalDateTime.now())
+		return ApiResponse.builder()
+				.status(200)
+				.message("Branch deleted successfully")
+				.timestamp(LocalDateTime.now())
 				.build();
 	}
 
 	/*
-	 * This method implements Acitivate Branch with id
+	 * This method implements activate Branch with id
 	 */
 	@Override
 	public ApiResponse activateBranch(Long id) {
+
+		if (id == null) {
+			throw new BadRequestException("Branch id cannot be null");
+		}
+
 		Branch branch = branchRepository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("Bank branch not found for given id: " + id));
+				.orElseThrow(() -> new ResourceNotFoundException(
+						"Bank branch not found for given id: " + id));
+
 		branch.setActive(true);
+
 		branchRepository.save(branch);
-		log.info("Branch activate with id {}", id);
-		return ApiResponse.builder().status(200).message("Branch Activate successfully").timestamp(LocalDateTime.now())
+
+		log.info("Branch activated with id {}", id);
+
+		return ApiResponse.builder()
+				.status(200)
+				.message("Branch activated successfully")
+				.timestamp(LocalDateTime.now())
 				.build();
 	}
 
 	/*
-	 * This method implements diactivate Branch with id
+	 * This method implements deactivate Branch with id
 	 */
-
 	@Override
 	public ApiResponse deActivateBranch(Long id) {
+
+		if (id == null) {
+			throw new BadRequestException("Branch id cannot be null");
+		}
+
 		Branch branch = branchRepository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("Bank branch not found for given id: " + id));
+				.orElseThrow(() -> new ResourceNotFoundException(
+						"Bank branch not found for given id: " + id));
 
 		branch.setActive(false);
+
 		branchRepository.save(branch);
 
-		log.info("Deactivate branch with id {}", id);
+		log.info("Branch deactivated with id {}", id);
+
 		/*
-		 * use method chaning concept
+		 * Method chaining
 		 */
-		return ApiResponse.builder().status(200).message("Branch delete successfully").timestamp(LocalDateTime.now())
+		return ApiResponse.builder()
+				.status(200)
+				.message("Branch deactivated successfully")
+				.timestamp(LocalDateTime.now())
 				.build();
 	}
-
 }

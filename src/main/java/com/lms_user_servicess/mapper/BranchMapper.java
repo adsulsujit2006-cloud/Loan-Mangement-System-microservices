@@ -10,9 +10,9 @@ import com.lms_user_servicess.modal.Branch;
 @Mapper(componentModel = "spring")
 public interface BranchMapper {
 
-    Branch toEntity(CreateBranchRequest request);
+	Branch toEntity(CreateBranchRequest request);
 
-    Branch toEntity(UpdateBranchRequest request);
+	Branch toEntity(UpdateBranchRequest request);
 
-    BranchResponse toResponse(Branch branch);
+	BranchResponse toResponse(Branch branch);
 }
