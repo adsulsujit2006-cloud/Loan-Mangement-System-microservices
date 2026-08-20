@@ -9,6 +9,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.lms_user_services.service.PermissionServices;
 import com.lms_user_servicess.dto.request.CreatePermissionRequest;
 import com.lms_user_servicess.dto.responce.ApiResponse;
 import com.lms_user_servicess.dto.responce.PermissionResponse;
@@ -18,7 +19,6 @@ import com.lms_user_servicess.exception.ResourceNotFoundException;
 import com.lms_user_servicess.mapper.PermissionMapper;
 import com.lms_user_servicess.modal.Permission;
 import com.lms_user_servicess.repository.PermissionRepository;
-import com.lms_user_servicess.sservice.PermissionServices;
 
 import lombok.extern.slf4j.Slf4j;
 
