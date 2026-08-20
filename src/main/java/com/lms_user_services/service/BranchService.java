@@ -1,4 +1,4 @@
-package com.lms_user_servicess.sservice;
+package com.lms_user_services.service;
 
 import java.util.List;
 

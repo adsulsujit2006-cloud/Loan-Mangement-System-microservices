@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.lms_user_services.service.BranchService;
 import com.lms_user_servicess.dto.request.CreateBranchRequest;
 import com.lms_user_servicess.dto.request.UpdateBranchRequest;
 import com.lms_user_servicess.dto.responce.ApiResponse;
@@ -17,7 +18,6 @@ import com.lms_user_servicess.exception.ResourceNotFoundException;
 import com.lms_user_servicess.mapper.BranchMapper;
 import com.lms_user_servicess.modal.Branch;
 import com.lms_user_servicess.repository.BranchRepository;
-import com.lms_user_servicess.sservice.BranchService;
 
 import lombok.extern.slf4j.Slf4j;
 
