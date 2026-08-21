@@ -12,6 +12,7 @@ import com.lms_user_servicess.dto.request.CreateBranchRequest;
 import com.lms_user_servicess.dto.request.UpdateBranchRequest;
 import com.lms_user_servicess.dto.responce.ApiResponse;
 import com.lms_user_servicess.dto.responce.BranchResponse;
+import com.lms_user_servicess.enums.Gender;
 import com.lms_user_servicess.exception.BadRequestException;
 import com.lms_user_servicess.exception.DuplicateResourceException;
 import com.lms_user_servicess.exception.ResourceNotFoundException;
@@ -30,6 +31,8 @@ public class BranchServiceimpl implements BranchService {
 
 	@Autowired
 	private BranchMapper branchMapper;
+
+
 
 	@Override
 	public BranchResponse createBranch(CreateBranchRequest request) {
@@ -186,6 +189,9 @@ public class BranchServiceimpl implements BranchService {
 
 		return branchMapper.toResponse(updatedBranch);
 	}
+	/*
+	 * This implemented method is get Branch by id
+	 */
 
 	@Override
 	public BranchResponse getBranchById(Long id) {
