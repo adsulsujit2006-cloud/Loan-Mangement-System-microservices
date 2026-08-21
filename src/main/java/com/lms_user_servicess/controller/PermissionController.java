@@ -94,7 +94,13 @@ public class PermissionController {
 	 */
 	@PatchMapping("/{id}/activat")
 	public ResponseEntity<ApiResponse> activateBranch(@PathVariable Long id) {
+		/*
+		 * Add log
+		 */
 		log.info("REST Request : Activate permission {}", id);
+		/*
+		 * call method and send data in services layer  
+		 */
 		return ResponseEntity.ok(permissionService.activatePermission(id));
 	}
 
