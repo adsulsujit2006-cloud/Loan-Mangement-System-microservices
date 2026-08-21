@@ -48,21 +48,40 @@ public class UserController {
 	 */
 	@GetMapping("/email/{email}")
 	public ResponseEntity<UserResponse> getUserByEmail(@PathVariable String email){
+		/*
+		 * Add log
+		 */
 		log.info("Rest Request : Get user by email {}", email);
 		return ResponseEntity.ok(userServices.getUserByEmail(email));
+	}
+	/*
+	 * REST API : Get the details of a user using its user email
+	 */
+	@GetMapping("/phonenumber/{phonenumber}")
+	public ResponseEntity<UserResponse> getUserByPhonenumber(
+			@PathVariable("phonenumber") String phonenumber) {
+
+		/*
+		 * Add log
+		 */
+		log.info("Rest Request : Get user by phone number {}", phonenumber);
+
+		return ResponseEntity.ok(userServices.getUserByMobail(phonenumber)
+		);
+	}
+	@GetMapping("/aadhaarNumber/{phonenumber}")
+	public ResponseEntity<UserResponse> getUserByAadhaarNumber(
+			@PathVariable("phonenumber") String aadhaarNumber) {
+
+		/*
+		 * Add log
+		 */
+		log.info("Rest Request : Get user by aadhaar Number {}", aadhaarNumber);
+
+		return ResponseEntity.ok(userServices.getUserByAdharNo(aadhaarNumber));
 	}
 
 }
 	
 	
 	
-//	@GetMapping("/{id}")
-//	public ResponseEntity<BranchResponse> getBranchById(@PathVariable Long id) {
-//
-//		log.info("REST Request : Get branch by id {}", id);
-//
-//		return ResponseEntity.ok(branchService.getBranchById(id));
-//	}
-
-
-

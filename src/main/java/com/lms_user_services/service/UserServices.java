@@ -13,7 +13,7 @@ public interface UserServices {
 	public UserResponse getUserById(Long id);
 	public UserResponse getUserByEmail(String email);
 	public UserResponse getUserByMobail(String mobaile);
-	public UserResponse getUserByName(String name);
+	public UserResponse getUserByAdharNo(String aadhaarNumber);
 	public List<UserResponse> getAllUsers();
 	public ApiResponse deleteUser();
 	public ApiResponse activateUser(Long id);
