@@ -19,6 +19,7 @@ import com.lms_user_servicess.modal.Branch;
 import com.lms_user_servicess.modal.User;
 import com.lms_user_servicess.repository.BranchRepository;
 import com.lms_user_servicess.repository.UserRepository;
+import com.lms_user_servicess.util.CustomerCodeGenerator;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -96,6 +97,7 @@ public class UserServicesImpl implements UserServices {
 	    /*
 	     * set by default active
 	     */
+	    user.setCustomerCode(CustomerCodeGenerator.generateCustomerCodeWithDate());
 	    user.setActive(true);
 	    /*
 	     * branch set for user
@@ -113,34 +115,72 @@ public class UserServicesImpl implements UserServices {
 		return null;
 	}
 	/*
-	 * This implemented method is Registor user
+	 * This implemented method is get user Details by using id 
+	 */
+	/*
+	 * use Transactional annotation to read data 
 	 */
 	@Override
 	@Transactional(readOnly = true)
 	public UserResponse getUserById(Long id) {
+		/*
+		 * Add log
+		 */
+		log.info("Get user deatils by using user id{}",id);
+		/*
+		 * find user data in DB
+		 */
 	    User user = userRepository.findById(id)
 	            .orElseThrow(() -> new ResourceNotFoundException("User not found for given id: " + id));
 	    return userMapper.toResponse(user);
 	}
-
+	/*
+	 * This implemented method is get user Details by using email
+	 */
+	/*
+	 * use Transactional annotation to read data 
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public UserResponse getUserByEmail(String email) {
+		/*
+		 * Add log
+		 */
+		log.info("Get user deatils by using user email{}",email);
+		/*
+		 * check user details in DB
+		 */
 		 User user = userRepository.findByEmail(email)
 		            .orElseThrow(() -> new ResourceNotFoundException("User not found for given id: " + email));
 		    return userMapper.toResponse(user);
 	}
-
+	/*
+	 * This implemented method is get user Details by using email
+	 */
+	/*
+	 * use Transactional annotation to read data 
+	 */
+	@Transactional(readOnly = true)
 	@Override
 	public UserResponse getUserByMobail(String mobaile) {
-		// TODO Auto-generated method stub
-		return null;
+		/*
+		 * Add log
+		 */
+		log.info("Get user details by using user mobaile numbar {}",mobaile);
+		/*
+		 * check user dtails in DB
+		 */
+		User user= userRepository.findByMobileNumber(mobaile).orElseThrow(()->
+		         new ResourceNotFoundException("User not found for given mobaile numbar"));
+		return userMapper.toResponse(user);
 	}
 
 	@Override
-	public UserResponse getUserByName(String name) {
-		// TODO Auto-generated method stub
-		return null;
+	@Transactional(readOnly = true)
+	public UserResponse getUserByAdharNo(String aadhaarNumber) {
+		User user= userRepository.findByAadhaarNumber(aadhaarNumber).orElseThrow(()->
+		     new ResourceNotFoundException("User not found for given aadhaar Number"));
+		return userMapper.toResponse(user);
 	}
 
 	@Override
