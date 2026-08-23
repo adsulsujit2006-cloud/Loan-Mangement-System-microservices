@@ -16,10 +16,7 @@ public class CustomerCodeGenerator {
         String d = dformat.format(date);
         String st = "CUSTNO";
         String s = st.concat(d).concat(String.format("%06d", seq));
-      
-
         seq++;
         return s;
-
     }
 }

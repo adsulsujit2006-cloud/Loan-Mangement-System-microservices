@@ -60,6 +60,7 @@ public class UpdateUserRequest {
 
     @Size(max = 100)
     private String landmark;
+  
 
     @NotBlank(message = "City is required")
     private String city;
