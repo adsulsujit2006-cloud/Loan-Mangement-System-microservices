@@ -2,8 +2,6 @@ package com.lms_user_servicess.controller;
 
 import java.util.List;
 
-import javax.validation.Valid;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -37,7 +35,7 @@ public class BranchController {
 	 * REST API : Register bank branch with required details
 	 */
 	@PostMapping("/register")
-	public ResponseEntity<BranchResponse> createBranch(@Valid @RequestBody CreateBranchRequest request) {
+	public ResponseEntity<BranchResponse> createBranch( @RequestBody CreateBranchRequest request) {
 
 		log.info("REST Request: Create Branch");
 
@@ -101,7 +99,7 @@ public class BranchController {
  */
 	@PutMapping("/{id}")
 	public ResponseEntity<BranchResponse> updateBranch(@PathVariable Long id,
-			@Valid @RequestBody UpdateBranchRequest request) {
+			 @RequestBody UpdateBranchRequest request) {
 
 		log.info("REST Request : Update Branch {}", id);
 

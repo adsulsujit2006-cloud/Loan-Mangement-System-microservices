@@ -1,6 +1,5 @@
 package com.lms_user_servicess.modal;
 
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -113,7 +112,7 @@ public class User {
     private String updatedBy;
 
     @Default
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "user_roles",
         joinColumns = @JoinColumn(name = "user_id"),
@@ -125,7 +124,10 @@ public class User {
     @JoinColumn(name = "branch_id")
     private Branch branch;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(
+        cascade = CascadeType.ALL,
+        fetch = FetchType.LAZY
+    )
     @JoinColumn(name = "address_id")
     private Address address;
 }

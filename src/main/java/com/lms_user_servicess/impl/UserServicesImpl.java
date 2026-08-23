@@ -21,8 +21,10 @@ import com.lms_user_servicess.exception.DuplicateResourceException;
 import com.lms_user_servicess.exception.ResourceNotFoundException;
 import com.lms_user_servicess.mapper.UserMapper;
 import com.lms_user_servicess.modal.Branch;
+import com.lms_user_servicess.modal.Role;
 import com.lms_user_servicess.modal.User;
 import com.lms_user_servicess.repository.BranchRepository;
+import com.lms_user_servicess.repository.RoleRepository;
 import com.lms_user_servicess.repository.UserRepository;
 import com.lms_user_servicess.util.CustomerCodeGenerator;
 
@@ -45,73 +47,103 @@ public class UserServicesImpl implements UserServices {
 	 * instance of UserMapper
 	 */
 	@Autowired
+	private RoleRepository roleRepository;
+	@Autowired
 	private UserMapper userMapper;
 	/*
 	 * This implemented method is Registor user
 	 */
 	@Override
+	@Transactional
 	public UserResponse createUser(UserRegistrationRequest request) {
-		/*
-		 * check request null or not
-		 */
+
+	    /*
+	     * check request null or not
+	     */
 	    if (request == null) {
 	        throw new BadRequestException("Please enter appropriate information.");
 	    }
+
 	    /*
 	     * Add log
 	     */
 	    log.info("Creating new user account with firstName {}", request.getFirstName());
 	    log.info("Creating new user account with middleName {}", request.getMiddleName());
 	    log.info("Creating new user account with lastName {}", request.getLastName());
-
 	    log.info("Creating new user account with dateOfBirth {}", request.getDateOfBirth());
 	    log.info("Creating new user account with gender {}", request.getGender());
+
 	    /*
 	     * check user email exit or not in DB
 	     */
 	    if (userRepository.existsByEmail(request.getEmail())) {
 	        throw new DuplicateResourceException("Email already exists");
 	    }
+
 	    /*
-	     * check user mobaile number exit or not
+	     * check user mobile number exit or not
 	     */
 	    if (userRepository.existsByMobileNumber(request.getMobileNumber())) {
 	        throw new DuplicateResourceException("Mobile number already exists");
 	    }
+
 	    /*
-	     * check adhar number is exit or not
+	     * check aadhaar number exit or not
 	     */
 	    if (userRepository.existsByAadhaarNumber(request.getAadhaarNumber())) {
 	        throw new DuplicateResourceException("Aadhaar number already exists");
 	    }
+
 	    /*
 	     * check panNumber exit or not
 	     */
 	    if (userRepository.existsByPanNumber(request.getPanNumber())) {
 	        throw new DuplicateResourceException("PAN number already exists");
 	    }
+
 	    /*
-	     * To assign branch on user 
+	     * To assign branch on user
 	     */
 	    Branch branch = branchRepository.findById(request.getBranchId())
 	            .orElseThrow(() -> new ResourceNotFoundException("Branch not found"));
+
 	    /*
-	     * map data userMapper class 
+	     * map data userMapper class
 	     */
 	    User user = userMapper.toEntity(request);
+
 	    /*
 	     * set by default active
 	     */
-	    user.setCustomerCode(CustomerCodeGenerator.generateCustomerCodeWithDate());
+	    user.setCustomerCode(
+	            CustomerCodeGenerator.generateCustomerCodeWithDate());
+
 	    user.setActive(true);
+
 	    /*
 	     * branch set for user
 	     */
 	    user.setBranch(branch);
+
+	    /*
+	     * set createdBy
+	     */
+	    user.setCreatedBy(request.getCreatedBy());
+
+	    /*
+	     * To assign role on user
+	     */
+	    Role role = roleRepository.findByRoleName(request.getRole())
+	            .orElseThrow(() -> new ResourceNotFoundException(
+	                    "Role not found: " + request.getRole()));
+
+	    user.getRoles().add(role);
+
 	    /*
 	     * user data save in DB
 	     */
 	    User savedUser = userRepository.save(user);
+
 	    return userMapper.toResponse(savedUser);
 	}
 	
