@@ -12,38 +12,36 @@ import com.lms_user_servicess.enums.RoleType;
 import com.lms_user_servicess.modal.User;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long>{
+public interface UserRepository extends JpaRepository<User, Long> {
+
 	Optional<User> findByEmail(String email);
 
-    Optional<User> findByMobileNumber(String mobileNumber);
+	Optional<User> findByMobileNumber(String mobileNumber);
 
-    Optional<User> findByCustomerCode(String customerCode);
+	Optional<User> findByCustomerCode(String customerCode);
 
-    Optional<User> findByPanNumber(String panNumber);
+	Optional<User> findByPanNumber(String panNumber);
 
-    Optional<User> findByAadhaarNumber(String aadhaarNumber);
-    boolean existsByFirstName(String firstName);
+	Optional<User> findByAadhaarNumber(String aadhaarNumber);
 
-    boolean existsByEmail(String email);
+	boolean existsByFirstName(String firstName);
 
-    boolean existsByMobileNumber(String mobileNumber);
+	boolean existsByLastName(String lastName);
 
-    boolean existsByPanNumber(String panNumber);
+	boolean existsByMiddleName(String middleName);
 
-    boolean existsByAadhaarNumber(String aadhaarNumber);
+	boolean existsByEmail(String email);
 
-    @Query(
-    	    "SELECT DISTINCT u " +
-    	    "FROM User u " +
-    	    "JOIN u.roles r " +
-    	    "WHERE u.branch.id = :branchId " +
-    	    "AND r.roleName = :roleName " +
-    	    "AND u.active = true"
-    	)
-    	List<User> findActiveUsersByBranchAndRole(
-    	        @Param("branchId") Long branchId,
-    	        @Param("roleName") RoleType roleName
-    	);
+	boolean existsByBranchId(Long id);
 
+	boolean existsByMobileNumber(String mobileNumber);
+
+	boolean existsByPanNumber(String panNumber);
+
+	boolean existsByAadhaarNumber(String aadhaarNumber);
+
+	@Query("SELECT DISTINCT u " + "FROM User u " + "JOIN u.roles r " + "WHERE u.branch.id = :branchId "
+			+ "AND r.roleName = :roleName " + "AND u.active = true")
+	List<User> findActiveUsersByBranchAndRole(@Param("branchId") Long branchId, @Param("roleName") RoleType roleName);
 
 }

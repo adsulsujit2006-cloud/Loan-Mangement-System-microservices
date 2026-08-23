@@ -1,12 +1,17 @@
 package com.lms_user_servicess.impl;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.lms_user_services.service.UserServices;
+import com.lms_user_servicess.dto.request.UpdateBranchRequest;
 import com.lms_user_servicess.dto.request.UpdateUserRequest;
 import com.lms_user_servicess.dto.request.UserRegistrationRequest;
 import com.lms_user_servicess.dto.responce.ApiResponse;
@@ -109,11 +114,7 @@ public class UserServicesImpl implements UserServices {
 	    User savedUser = userRepository.save(user);
 	    return userMapper.toResponse(savedUser);
 	}
-	@Override
-	public UserResponse updateUser(Long id, UpdateUserRequest request) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
 	/*
 	 * This implemented method is get user Details by using id 
 	 */
@@ -174,37 +175,232 @@ public class UserServicesImpl implements UserServices {
 		         new ResourceNotFoundException("User not found for given mobaile numbar"));
 		return userMapper.toResponse(user);
 	}
-
+	
+	/*
+	 * This implemented method is get user Details by using aadhaarNumber
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public UserResponse getUserByAdharNo(String aadhaarNumber) {
+		/*
+		 * Add Log
+		 */
+		log.info("get user details by using aadhaarNumber",aadhaarNumber);
+		/*
+		 * Find data in DB avlible dta to dispaly data and not avlible throw exception
+		 */
 		User user= userRepository.findByAadhaarNumber(aadhaarNumber).orElseThrow(()->
 		     new ResourceNotFoundException("User not found for given aadhaar Number"));
 		return userMapper.toResponse(user);
 	}
-
+	/*
+	 * This implemented method is All get user Details 
+	 */
 	@Override
+	@Transactional(readOnly = true)
 	public List<UserResponse> getAllUsers() {
-		// TODO Auto-generated method stub
-		return null;
+		/*
+		 * Add log
+		 */
+		log.info("");
+		return userRepository.findAll().stream()
+				.map(userMapper::toResponse)
+				.collect(Collectors.toList());
 	}
-
+	/*
+	 * This implemented method is Soft delete user by using user id
+	 */
 	@Override
-	public ApiResponse deleteUser() {
-		// TODO Auto-generated method stub
-		return null;
+	public ApiResponse deleteUser(Long id) {
+		/*
+		 * Add Log
+		 */
+		log.info("soft delete user by using id");
+		/*
+		 * find data in DB
+		 */
+		User user= userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(
+				"User not found for given id: " + id));
+		/*
+		 * Set false value
+		 */
+		user.setActive(false);
+		userRepository.save(user);
+		log.info("User soft delete with id {}",id);
+		return ApiResponse.builder()
+				.status(200)
+				.message("User deleted successfully")
+				.timestamp(LocalDateTime.now())
+				.build();
 	}
 
+	/*
+	 * This implemented method is activateUser by using user id
+	 */
 	@Override
 	public ApiResponse activateUser(Long id) {
-		// TODO Auto-generated method stub
-		return null;
+		/*
+		 * Add log
+		 */
+		log.info("Activate User by using id {}",id);
+		/*
+		 * find data in DB
+		 */
+		User user= userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(
+				"User not found for given id: " + id));
+		/*
+		 * set ststus value true
+		 */
+		user.setActive(true);
+		/*
+		 * Save data DB
+		 */
+		userRepository.save(user);
+		log.info("User Activate wit id{}",id);
+		
+		return ApiResponse.builder()
+				.status(200)
+				.message("User activate successfully")
+				.timestamp(LocalDateTime.now())
+				.build();
 	}
-
+	/*
+	 * This implemented method is DeactivateUser by using user id
+	 */
 	@Override
 	public ApiResponse deActivateUser(Long id) {
-		// TODO Auto-generated method stub
-		return null;
+		/*
+		 * Add Log
+		 */
+		log.info("soft delete user by using id");
+		/*
+		 * find data in DB
+		 */
+		User user= userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(
+				"User not found for given id: " + id));
+		/*
+		 * Set us deActivate
+		 */
+		user.setActive(false);
+		/*
+		 * Save data DB
+		 */
+		userRepository.save(user);
+		log.info("User soft deActivate with id {}",id);
+		return ApiResponse.builder()
+				.status(200)
+				.message("User deActivate successfully")
+				.timestamp(LocalDateTime.now())
+				.build();
 	}
+	/*
+	 * This implemented method is updateUser by using user id
+	 */
 
+	@Override
+	public UserResponse updateUser(Long id, @Valid UpdateUserRequest request) {
+		/*
+		 * Add log
+		 */
+
+	    log.info("Update user details with user id {}", id);
+	    /*
+	     * check request is mull or not
+	     */
+
+	    if (request == null) {
+	        throw new BadRequestException("Update user request cannot be null");
+	    }
+	    /*
+	     * Check data avalibele in DB
+	     */
+
+	    User user = userRepository.findById(id)
+	            .orElseThrow(() -> new ResourceNotFoundException("User not found for given id: " + id));
+
+	 /*
+	  * Check First  duplicate or not
+	  */
+	    if (request.getFirstName() != null
+	            && !request.getFirstName().equals(user.getFirstName())
+	            && userRepository.existsByFirstName(request.getFirstName())) {
+
+	        throw new DuplicateResourceException("First Name is already exists, enter unique");
+	    }
+	    /*
+		   * check Middle Name is duplicate or not
+		   */
+	    if(request.getMiddleName() !=null
+	    		&& !request.getMiddleName().equals(user.getMiddleName())
+	    		&& userRepository.existsByMiddleName(request.getMiddleName())) {
+	    	 throw new DuplicateResourceException("MiddleName is already exists, enter unique");
+	    }
+	    /*
+		   * check Last Name is duplicate or not
+		   */
+	    if(request.getLastName() !=null
+	    		&& !request.getLastName().equals(user.getLastName())
+	    		&& userRepository.existsByLastName(request.getLastName())) {
+	    	 throw new DuplicateResourceException("Last Name is already exists, enter unique");
+	    }
+
+	  /*
+	   * check email is duplicate or not
+	   */
+	    if (request.getEmail() != null
+	            && !request.getEmail().equals(user.getEmail())
+	            && userRepository.existsByEmail(request.getEmail())) {
+
+	        throw new DuplicateResourceException("Email is already exists, enter unique");
+	    }
+
+	/*
+	 * check mobaile number is duplicate or not
+	 */
+	    if (request.getMobileNumber() != null
+	            && !request.getMobileNumber().equals(user.getMobileNumber())
+	            && userRepository.existsByMobileNumber(request.getMobileNumber())) {
+
+	        throw new DuplicateResourceException("Mobile number is already exists, enter unique");
+	    }
+
+	    /*
+	     * Update First Name
+	     */
+	    if (request.getFirstName() != null) {
+	        user.setFirstName(request.getFirstName());
+	    }
+
+	    /*
+	     * Update Middle name
+	     */
+	    if(request.getMiddleName() !=null)
+	    		user.setMiddleName(request.getMiddleName());
+	    /*
+	     * Update Last Name
+	     */
+	    if (request.getLastName() != null) {
+	        user.setLastName(request.getLastName());
+	    }
+
+	    /*
+	     * Update Email
+	     */
+	    if (request.getEmail() != null) {
+	        user.setEmail(request.getEmail());
+	    }
+
+	    /*
+	     * Update Mobile Number
+	     */
+	    if (request.getMobileNumber() != null) {
+	        user.setMobileNumber(request.getMobileNumber());
+	    }
+
+	    User updatedUser = userRepository.save(user);
+
+	    log.info("User details updated successfully with user id {}", id);
+
+	    return userMapper.toResponse(updatedUser);
+	}
 }
