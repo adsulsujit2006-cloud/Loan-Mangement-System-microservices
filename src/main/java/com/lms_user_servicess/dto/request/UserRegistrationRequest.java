@@ -9,6 +9,8 @@ import javax.validation.constraints.Past;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import com.lms_user_servicess.enums.RoleType;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -99,4 +101,15 @@ public class UserRegistrationRequest {
             regexp = "^[1-9][0-9]{5}$",
             message = "Invalid PIN Code")
     private String pinCode;
+
+    /*
+     * Role of user
+     */
+    @NotNull(message = "Role is required")
+    private RoleType role;
+
+    /*
+     * User who created this account
+     */
+    private String createdBy;
 }
