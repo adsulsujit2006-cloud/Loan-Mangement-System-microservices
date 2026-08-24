@@ -1,6 +1,8 @@
 package com.lms_user_servicess.impl;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +20,7 @@ import com.lms_user_servicess.dto.request.UserRegistrationRequest;
 import com.lms_user_servicess.dto.responce.ApiResponse;
 import com.lms_user_servicess.dto.responce.LoginResponse;
 import com.lms_user_servicess.dto.responce.UserResponse;
+import com.lms_user_servicess.enums.RoleType;
 import com.lms_user_servicess.exception.BadRequestException;
 import com.lms_user_servicess.exception.DuplicateResourceException;
 import com.lms_user_servicess.exception.ResourceNotFoundException;
@@ -76,38 +79,70 @@ public class UserServicesImpl implements UserServices {
 	    log.info("Creating new user account with gender {}", request.getGender());
 
 	    /*
-	     * check user email exit or not in DB
+	     * check user email exist or not in DB
 	     */
 	    if (userRepository.existsByEmail(request.getEmail())) {
 	        throw new DuplicateResourceException("Email already exists");
 	    }
 
 	    /*
-	     * check user mobile number exit or not
+	     * check user mobile number exist or not
 	     */
 	    if (userRepository.existsByMobileNumber(request.getMobileNumber())) {
 	        throw new DuplicateResourceException("Mobile number already exists");
 	    }
 
 	    /*
-	     * check aadhaar number exit or not
+	     * check aadhaar number exist or not
 	     */
 	    if (userRepository.existsByAadhaarNumber(request.getAadhaarNumber())) {
 	        throw new DuplicateResourceException("Aadhaar number already exists");
 	    }
 
 	    /*
-	     * check panNumber exit or not
+	     * check panNumber exist or not
 	     */
 	    if (userRepository.existsByPanNumber(request.getPanNumber())) {
 	        throw new DuplicateResourceException("PAN number already exists");
 	    }
 
 	    /*
+	     * Not  permission for REPRESENTATIVE_EXECUTIVE role Add self
+	     */
+	    if (request.getRole() == RoleType.REPRESENTATIVE_EXECUTIVE) {
+	        throw new BadRequestException("Not permission to add role");
+	    }
+	    /*
+	     * Not  permission for ROPERATIONS_MANAGER role Add self
+	     */
+	    if(request.getRole() == RoleType.OPERATIONS_MANAGER) {
+	    	throw new BadRequestException("Not permission to add role");
+	    }
+	    /*
+	     * Not  permission for CREDIT_MANAGER role Add self
+	     */
+	    if(request.getRole() == RoleType.CREDIT_MANAGER) {
+	    	throw new BadRequestException("Not permission to add role");
+	    }
+	    /*
+	     * Not  permission for AUDITOR role Add self
+	     */
+	    if(request.getRole() == RoleType.AUDITOR) {
+	    	throw new BadRequestException("Not permission to add role");
+	    }
+	    /*
+	     * Not  permission for COLLECTION_AGENT role Add self
+	     */
+	    if(request.getRole() == RoleType.COLLECTION_AGENT) {
+	    	throw new BadRequestException("Not permission to add role");
+	    }
+
+	    /*
 	     * To assign branch on user
 	     */
 	    Branch branch = branchRepository.findById(request.getBranchId())
-	            .orElseThrow(() -> new ResourceNotFoundException("Branch not found"));
+	            .orElseThrow(() ->
+	                    new ResourceNotFoundException("Branch not found"));
 
 	    /*
 	     * map data userMapper class
@@ -136,8 +171,9 @@ public class UserServicesImpl implements UserServices {
 	     * To assign role on user
 	     */
 	    Role role = roleRepository.findByRoleName(request.getRole())
-	            .orElseThrow(() -> new ResourceNotFoundException(
-	                    "Role not found: " + request.getRole()));
+	            .orElseThrow(() ->
+	                    new ResourceNotFoundException(
+	                            "Role not found: " + request.getRole()));
 
 	    user.getRoles().add(role);
 
@@ -148,7 +184,6 @@ public class UserServicesImpl implements UserServices {
 
 	    return userMapper.toResponse(savedUser);
 	}
-	
 	/*
 	 * This implemented method is get user Details by using id 
 	 */
@@ -437,54 +472,91 @@ public class UserServicesImpl implements UserServices {
 
 	    return userMapper.toResponse(updatedUser);
 	}
-
+	
+	/*
+	 * This implemented method is Login user itself by username and password
+	 */
 	@Override
 	@Transactional
 	public LoginResponse login(LoginRequest request) {
 
-	    log.info("Login request received for username: {}", request != null ? request.getUsername() : null);
+	    log.info("Login request received for username: {}",
+	            request != null ? request.getUsername() : null);
 
-	    // 1. Validate request
+	    /*
+	     * Check request null or not
+	     */
 	    if (request == null) {
 	        throw new BadRequestException("Please enter login information.");
 	    }
 
-	    // 2. Validate username
-	    if (request.getUsername() == null || request.getUsername().trim().isEmpty()) {
+	    /*
+	     * Validate username
+	     */
+	    if (request.getUsername() == null
+	            || request.getUsername().trim().isEmpty()) {
+
 	        throw new BadRequestException("Username is required.");
 	    }
 
-	    // 3. Validate password
-	    if (request.getPassword() == null || request.getPassword().isEmpty()) {
+	    /*
+	     * Validate password
+	     */
+	    if (request.getPassword() == null
+	            || request.getPassword().isEmpty()) {
+
 	        throw new BadRequestException("Password is required.");
 	    }
 
-	    // 4. Find user using createdBy
+	    /*
+	     * Check user in DB using createdBy
+	     */
 	    User user = userRepository.findByCreatedBy(request.getUsername())
 	            .orElseThrow(() ->
-	                    new ResourceNotFoundException("Invalid username or password"));
+	                    new ResourceNotFoundException(
+	                            "Invalid username or password"));
 
-	    // 5. Check account status
+	    /*
+	     * Check account status
+	     */
 	    if (!Boolean.TRUE.equals(user.getActive())) {
+
 	        throw new BadRequestException("User account is inactive");
 	    }
 
-	    // 6. Check password
+	    /*
+	     * Check password
+	     */
 	    if (!request.getPassword().equals(user.getPassword())) {
+
 	        throw new BadRequestException("Invalid username or password");
 	    }
 
-	    // 7. Convert User entity to UserResponse
+	    /*
+	     * Convert User entity to UserResponse
+	     */
 	    UserResponse userResponse = userMapper.toResponse(user);
 
-	    // 8. Create login response
+	    /*
+	     * Create login response
+	     */
 	    LoginResponse response = new LoginResponse();
 
 	    response.setUser(userResponse);
-	    response.setTokenType("Bearer");
-	    response.setAccessToken("ACCESS_TOKEN");
-	    response.setRefreshToken("REFRESH_TOKEN");
-	    response.setExpiresIn(3600L);
+//	    response.setTokenType("Bearer");
+//	    response.setAccessToken("ACCESS_TOKEN");
+//	    response.setRefreshToken("REFRESH_TOKEN");
+//	    response.setExpiresIn(3600L);
+
+	    /*
+	     * Update last login time
+	     */
+	    user.setLastLogin(LocalDateTime.now());
+
+	    /*
+	     * Save user
+	     */
+	    userRepository.save(user);
 
 	    log.info("User login successful: {}", user.getCreatedBy());
 
