@@ -24,6 +24,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	Optional<User> findByAadhaarNumber(String aadhaarNumber);
 
+	// Login using createdBy
+	Optional<User> findByCreatedBy(String createdBy);
+
 	boolean existsByFirstName(String firstName);
 
 	boolean existsByLastName(String lastName);
@@ -40,8 +43,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	boolean existsByAadhaarNumber(String aadhaarNumber);
 
-	@Query("SELECT DISTINCT u " + "FROM User u " + "JOIN u.roles r " + "WHERE u.branch.id = :branchId "
-			+ "AND r.roleName = :roleName " + "AND u.active = true")
-	List<User> findActiveUsersByBranchAndRole(@Param("branchId") Long branchId, @Param("roleName") RoleType roleName);
-
+	@Query("SELECT DISTINCT u " +
+		   "FROM User u " +
+		   "JOIN u.roles r " +
+		   "WHERE u.branch.id = :branchId " +
+		   "AND r.roleName = :roleName " +
+		   "AND u.active = true")
+	List<User> findActiveUsersByBranchAndRole(
+			@Param("branchId") Long branchId,
+			@Param("roleName") RoleType roleName);
 }

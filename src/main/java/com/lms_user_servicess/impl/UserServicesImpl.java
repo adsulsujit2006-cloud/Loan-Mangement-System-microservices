@@ -11,10 +11,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.lms_user_services.service.UserServices;
+import com.lms_user_servicess.dto.request.LoginRequest;
 import com.lms_user_servicess.dto.request.UpdateBranchRequest;
 import com.lms_user_servicess.dto.request.UpdateUserRequest;
 import com.lms_user_servicess.dto.request.UserRegistrationRequest;
 import com.lms_user_servicess.dto.responce.ApiResponse;
+import com.lms_user_servicess.dto.responce.LoginResponse;
 import com.lms_user_servicess.dto.responce.UserResponse;
 import com.lms_user_servicess.exception.BadRequestException;
 import com.lms_user_servicess.exception.DuplicateResourceException;
@@ -434,5 +436,58 @@ public class UserServicesImpl implements UserServices {
 	    log.info("User details updated successfully with user id {}", id);
 
 	    return userMapper.toResponse(updatedUser);
+	}
+
+	@Override
+	@Transactional
+	public LoginResponse login(LoginRequest request) {
+
+	    log.info("Login request received for username: {}", request != null ? request.getUsername() : null);
+
+	    // 1. Validate request
+	    if (request == null) {
+	        throw new BadRequestException("Please enter login information.");
+	    }
+
+	    // 2. Validate username
+	    if (request.getUsername() == null || request.getUsername().trim().isEmpty()) {
+	        throw new BadRequestException("Username is required.");
+	    }
+
+	    // 3. Validate password
+	    if (request.getPassword() == null || request.getPassword().isEmpty()) {
+	        throw new BadRequestException("Password is required.");
+	    }
+
+	    // 4. Find user using createdBy
+	    User user = userRepository.findByCreatedBy(request.getUsername())
+	            .orElseThrow(() ->
+	                    new ResourceNotFoundException("Invalid username or password"));
+
+	    // 5. Check account status
+	    if (!Boolean.TRUE.equals(user.getActive())) {
+	        throw new BadRequestException("User account is inactive");
+	    }
+
+	    // 6. Check password
+	    if (!request.getPassword().equals(user.getPassword())) {
+	        throw new BadRequestException("Invalid username or password");
+	    }
+
+	    // 7. Convert User entity to UserResponse
+	    UserResponse userResponse = userMapper.toResponse(user);
+
+	    // 8. Create login response
+	    LoginResponse response = new LoginResponse();
+
+	    response.setUser(userResponse);
+	    response.setTokenType("Bearer");
+	    response.setAccessToken("ACCESS_TOKEN");
+	    response.setRefreshToken("REFRESH_TOKEN");
+	    response.setExpiresIn(3600L);
+
+	    log.info("User login successful: {}", user.getCreatedBy());
+
+	    return response;
 	}
 }
