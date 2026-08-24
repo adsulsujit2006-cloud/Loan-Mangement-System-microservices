@@ -18,9 +18,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lms_user_services.service.UserServices;
+import com.lms_user_servicess.dto.request.LoginRequest;
 import com.lms_user_servicess.dto.request.UpdateUserRequest;
 import com.lms_user_servicess.dto.request.UserRegistrationRequest;
 import com.lms_user_servicess.dto.responce.ApiResponse;
+import com.lms_user_servicess.dto.responce.LoginResponse;
 import com.lms_user_servicess.dto.responce.UserResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -129,6 +131,14 @@ public class UserController {
 			log.info("REST Request : Update Branch {}", id);
 
 			return ResponseEntity.ok(userServices.updateUser(id, request));
+		}
+		@PostMapping("/login")
+		public ResponseEntity<LoginResponse> login(
+		        @Valid @RequestBody LoginRequest request) {
+
+		    LoginResponse response = userServices.login(request);
+
+		    return ResponseEntity.ok(response);
 		}
 
 }
