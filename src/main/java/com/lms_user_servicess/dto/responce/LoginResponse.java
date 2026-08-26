@@ -21,4 +21,9 @@ public class LoginResponse {
 
     private UserResponse user;
 
+	  
+    private String loginref;
+
+	
+
 }

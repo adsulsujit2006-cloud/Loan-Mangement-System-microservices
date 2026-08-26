@@ -1,20 +1,18 @@
 package com.lms_user_servicess.impl;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.lms_user_services.service.UserServices;
 import com.lms_user_servicess.dto.request.LoginRequest;
-import com.lms_user_servicess.dto.request.UpdateBranchRequest;
 import com.lms_user_servicess.dto.request.UpdateUserRequest;
 import com.lms_user_servicess.dto.request.UserRegistrationRequest;
 import com.lms_user_servicess.dto.responce.ApiResponse;
@@ -55,6 +53,8 @@ public class UserServicesImpl implements UserServices {
 	private RoleRepository roleRepository;
 	@Autowired
 	private UserMapper userMapper;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 	/*
 	 * This implemented method is Registor user
 	 */
@@ -66,75 +66,100 @@ public class UserServicesImpl implements UserServices {
 	     * check request null or not
 	     */
 	    if (request == null) {
-	        throw new BadRequestException("Please enter appropriate information.");
+	        throw new BadRequestException(
+	                "Please enter appropriate information.");
 	    }
 
 	    /*
 	     * Add log
 	     */
-	    log.info("Creating new user account with firstName {}", request.getFirstName());
-	    log.info("Creating new user account with middleName {}", request.getMiddleName());
-	    log.info("Creating new user account with lastName {}", request.getLastName());
-	    log.info("Creating new user account with dateOfBirth {}", request.getDateOfBirth());
-	    log.info("Creating new user account with gender {}", request.getGender());
+	    log.info("Creating new user account with firstName {}",
+	            request.getFirstName());
+	    log.info("Creating new user account with middleName {}",
+	            request.getMiddleName());
+	    log.info("Creating new user account with lastName {}",
+	            request.getLastName());
+	    log.info("Creating new user account with dateOfBirth {}",
+	            request.getDateOfBirth());
+	    log.info("Creating new user account with gender {}",
+	            request.getGender());
 
 	    /*
 	     * check user email exist or not in DB
 	     */
 	    if (userRepository.existsByEmail(request.getEmail())) {
-	        throw new DuplicateResourceException("Email already exists");
+	        throw new DuplicateResourceException(
+	                "Email already exists");
 	    }
 
 	    /*
 	     * check user mobile number exist or not
 	     */
-	    if (userRepository.existsByMobileNumber(request.getMobileNumber())) {
-	        throw new DuplicateResourceException("Mobile number already exists");
+	    if (userRepository.existsByMobileNumber(
+	            request.getMobileNumber())) {
+
+	        throw new DuplicateResourceException(
+	                "Mobile number already exists");
 	    }
 
 	    /*
 	     * check aadhaar number exist or not
 	     */
-	    if (userRepository.existsByAadhaarNumber(request.getAadhaarNumber())) {
-	        throw new DuplicateResourceException("Aadhaar number already exists");
+	    if (userRepository.existsByAadhaarNumber(
+	            request.getAadhaarNumber())) {
+
+	        throw new DuplicateResourceException(
+	                "Aadhaar number already exists");
 	    }
 
 	    /*
 	     * check panNumber exist or not
 	     */
-	    if (userRepository.existsByPanNumber(request.getPanNumber())) {
-	        throw new DuplicateResourceException("PAN number already exists");
+	    if (userRepository.existsByPanNumber(
+	            request.getPanNumber())) {
+
+	        throw new DuplicateResourceException(
+	                "PAN number already exists");
 	    }
 
 	    /*
-	     * Not  permission for REPRESENTATIVE_EXECUTIVE role Add self
+	     * Not permission for REPRESENTATIVE_EXECUTIVE role
 	     */
 	    if (request.getRole() == RoleType.REPRESENTATIVE_EXECUTIVE) {
-	        throw new BadRequestException("Not permission to add role");
+	        throw new BadRequestException(
+	                "Not permission to add role");
 	    }
+
 	    /*
-	     * Not  permission for ROPERATIONS_MANAGER role Add self
+	     * Not permission for OPERATIONS_MANAGER role
 	     */
-	    if(request.getRole() == RoleType.OPERATIONS_MANAGER) {
-	    	throw new BadRequestException("Not permission to add role");
+	    if (request.getRole() == RoleType.OPERATIONS_MANAGER) {
+	        throw new BadRequestException(
+	                "Not permission to add role");
 	    }
+
 	    /*
-	     * Not  permission for CREDIT_MANAGER role Add self
+	     * Not permission for CREDIT_MANAGER role
 	     */
-	    if(request.getRole() == RoleType.CREDIT_MANAGER) {
-	    	throw new BadRequestException("Not permission to add role");
+	    if (request.getRole() == RoleType.CREDIT_MANAGER) {
+	        throw new BadRequestException(
+	                "Not permission to add role");
 	    }
+
 	    /*
-	     * Not  permission for AUDITOR role Add self
+	     * Not permission for AUDITOR role
 	     */
-	    if(request.getRole() == RoleType.AUDITOR) {
-	    	throw new BadRequestException("Not permission to add role");
+	    if (request.getRole() == RoleType.AUDITOR) {
+	        throw new BadRequestException(
+	                "Not permission to add role");
 	    }
+
 	    /*
-	     * Not  permission for COLLECTION_AGENT role Add self
+	     * Not permission for COLLECTION_AGENT role
 	     */
-	    if(request.getRole() == RoleType.COLLECTION_AGENT) {
-	    	throw new BadRequestException("Not permission to add role");
+	    if (request.getRole() == RoleType.COLLECTION_AGENT) {
+	        throw new BadRequestException(
+	                "Not permission to add role");
 	    }
 
 	    /*
@@ -142,7 +167,8 @@ public class UserServicesImpl implements UserServices {
 	     */
 	    Branch branch = branchRepository.findById(request.getBranchId())
 	            .orElseThrow(() ->
-	                    new ResourceNotFoundException("Branch not found"));
+	                    new ResourceNotFoundException(
+	                            "Branch not found"));
 
 	    /*
 	     * map data userMapper class
@@ -150,11 +176,20 @@ public class UserServicesImpl implements UserServices {
 	    User user = userMapper.toEntity(request);
 
 	    /*
-	     * set by default active
+	     * encode user password
+	     */
+	    user.setPassword(
+	            passwordEncoder.encode(request.getPassword()));
+
+	    /*
+	     * set customer code
 	     */
 	    user.setCustomerCode(
 	            CustomerCodeGenerator.generateCustomerCodeWithDate());
 
+	    /*
+	     * set by default active
+	     */
 	    user.setActive(true);
 
 	    /*
@@ -480,8 +515,7 @@ public class UserServicesImpl implements UserServices {
 	@Transactional
 	public LoginResponse login(LoginRequest request) {
 
-	    log.info("Login request received for username: {}",
-	            request != null ? request.getUsername() : null);
+	    log.info("Login request received for username: {}",request);
 
 	    /*
 	     * Check request null or not
@@ -493,8 +527,7 @@ public class UserServicesImpl implements UserServices {
 	    /*
 	     * Validate username
 	     */
-	    if (request.getUsername() == null
-	            || request.getUsername().trim().isEmpty()) {
+	    if (request.getUsername() == null|| request.getUsername().trim().isEmpty()) {
 
 	        throw new BadRequestException("Username is required.");
 	    }
@@ -502,8 +535,7 @@ public class UserServicesImpl implements UserServices {
 	    /*
 	     * Validate password
 	     */
-	    if (request.getPassword() == null
-	            || request.getPassword().isEmpty()) {
+	    if (request.getPassword() == null|| request.getPassword().isEmpty()) {
 
 	        throw new BadRequestException("Password is required.");
 	    }
@@ -512,41 +544,28 @@ public class UserServicesImpl implements UserServices {
 	     * Check user in DB using createdBy
 	     */
 	    User user = userRepository.findByCreatedBy(request.getUsername())
-	            .orElseThrow(() ->
-	                    new ResourceNotFoundException(
-	                            "Invalid username or password"));
+	            .orElseThrow(() ->new ResourceNotFoundException("Invalid username or password"));
 
 	    /*
 	     * Check account status
 	     */
 	    if (!Boolean.TRUE.equals(user.getActive())) {
 
-	        throw new BadRequestException("User account is inactive");
+	        throw new BadRequestException( "User account is inactive");
 	    }
 
 	    /*
-	     * Check password
+	     * Check password using BCrypt
 	     */
-	    if (!request.getPassword().equals(user.getPassword())) {
+	    if (!passwordEncoder.matches( request.getPassword(),user.getPassword())) {
 
 	        throw new BadRequestException("Invalid username or password");
 	    }
 
 	    /*
-	     * Convert User entity to UserResponse
+	     * Set login reference
 	     */
-	    UserResponse userResponse = userMapper.toResponse(user);
-
-	    /*
-	     * Create login response
-	     */
-	    LoginResponse response = new LoginResponse();
-
-	    response.setUser(userResponse);
-//	    response.setTokenType("Bearer");
-//	    response.setAccessToken("ACCESS_TOKEN");
-//	    response.setRefreshToken("REFRESH_TOKEN");
-//	    response.setExpiresIn(3600L);
+	    user.setLoginref(request.getUsername());
 
 	    /*
 	     * Update last login time
@@ -556,9 +575,26 @@ public class UserServicesImpl implements UserServices {
 	    /*
 	     * Save user
 	     */
-	    userRepository.save(user);
+	    User savedUser = userRepository.save(user);
 
-	    log.info("User login successful: {}", user.getCreatedBy());
+	    /*
+	     * Convert User entity to UserResponse
+	     */
+	    UserResponse userResponse =userMapper.toResponse(savedUser);
+
+	    /*
+	     * Create login response
+	     */
+	    LoginResponse response = new LoginResponse();
+
+	    response.setUser(userResponse);
+
+	    /*
+	     * Set login reference in response
+	     */
+	    response.setLoginref(savedUser.getLoginref());
+
+	    log.info("User login successful: {}",user.getCreatedBy());
 
 	    return response;
 	}

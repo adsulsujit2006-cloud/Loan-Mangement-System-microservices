@@ -40,6 +40,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
+        
 
         <!-- Spring Data JPA -->
         <dependency>
@@ -116,11 +117,12 @@
             <version>${org.mapstruct.version}</version>
             <scope>provided</scope>
         </dependency>
-       <!--   <dependency>
+       <!--  spring security  -->
+       <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
-        -->
+       
 
         <!-- Lombok + MapStruct Binding -->
         <dependency>

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CustomerCodeGenerator {
 
-	private static long seq = 2;
+	private static long seq = 3;
 
 	public static String generateCustomerCodeWithDate() {
 	    Date date = new Date(System.currentTimeMillis());
