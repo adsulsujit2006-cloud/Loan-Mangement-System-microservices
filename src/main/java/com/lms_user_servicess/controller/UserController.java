@@ -40,7 +40,7 @@ public class UserController {
 	/*
 	 * REST API : Register bank branch with required details
 	 */
-	@PostMapping
+	@PostMapping("/register")
 	public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRegistrationRequest request){
 		log.info("REST Request : create user");
 		UserResponse response = userServices.createUser(request);
